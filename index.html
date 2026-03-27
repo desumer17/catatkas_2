@@ -171,7 +171,11 @@ input:focus { outline: none; }
   <script>
 // PWA Service Worker untuk offline & installasi
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register(new URL('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4gc2VsZi5za2lwV2FpdGluZygpKTtzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2FjdGl2YXRlJywgZXZlbnQgPT4gc2VsZi5jbGllbnRzLmNsYWltKCkpO3NlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiBldmVudC5yZXNwb25kV2l0aChmZXRjaChldmVudC5yZXF1ZXN0KS5jYXRjaCgoKSA9PiBuZXcgUmVzcG9uc2UoJ1tPZmZsaW5lXScpKSkpOw==', {type: 'application/javascript'})).catch(e => console.log('SW registration failed:', e));
+  try {
+    navigator.serviceWorker.register(new URL('data:application/javascript;base64,c2VsZi5hZGRFdmVudExpc3RlbmVyKCdpbnN0YWxsJywgZXZlbnQgPT4gc2VsZi5za2lwV2FpdGluZygpKTtzZWxmLmFkZEV2ZW50TGlzdGVuZXIoJ2FjdGl2YXRlJywgZXZlbnQgPT4gc2VsZi5jbGllbnRzLmNsYWltKCkpO3NlbGYuYWRkRXZlbnRMaXN0ZW5lcignZmV0Y2gnLCBldmVudCA9PiBldmVudC5yZXNwb25kV2l0aChmZXRjaChldmVudC5yZXF1ZXN0KS5jYXRjaCgoKSA9PiBuZXcgUmVzcG9uc2UoJ1tPZmZsaW5lXScpKSkpOw==', {type: 'application/javascript'}));
+  } catch (e) {
+    // SW registration optional - app works without it
+  }
 }
 
 // ---- STATE ----
@@ -513,28 +517,30 @@ function applyConfig(config) {
   document.body.style.fontSize = size + 'px';
 }
 
-window.elementSdk.init({
-  defaultConfig,
-  onConfigChange: async (config) => { applyConfig(config); },
-  mapToCapabilities: (config) => ({
-    recolorables: [
-      { get:()=>config.background_color||defaultConfig.background_color, set:(v)=>{config.background_color=v;window.elementSdk.setConfig({background_color:v})} },
-      { get:()=>config.surface_color||defaultConfig.surface_color, set:(v)=>{config.surface_color=v;window.elementSdk.setConfig({surface_color:v})} },
-      { get:()=>config.text_color||defaultConfig.text_color, set:(v)=>{config.text_color=v;window.elementSdk.setConfig({text_color:v})} },
-      { get:()=>config.primary_action_color||defaultConfig.primary_action_color, set:(v)=>{config.primary_action_color=v;window.elementSdk.setConfig({primary_action_color:v})} },
-      { get:()=>config.secondary_action_color||defaultConfig.secondary_action_color, set:(v)=>{config.secondary_action_color=v;window.elementSdk.setConfig({secondary_action_color:v})} }
-    ],
-    borderables: [],
-    fontEditable: { get:()=>config.font_family||defaultConfig.font_family, set:(v)=>{config.font_family=v;window.elementSdk.setConfig({font_family:v})} },
-    fontSizeable: { get:()=>config.font_size||defaultConfig.font_size, set:(v)=>{config.font_size=v;window.elementSdk.setConfig({font_size:v})} }
-  }),
-  mapToEditPanelValues: (config) => new Map([
-    ['app_title', config.app_title || defaultConfig.app_title]
-  ])
-});
+if (window.elementSdk) {
+  window.elementSdk.init({
+    defaultConfig,
+    onConfigChange: async (config) => { applyConfig(config); },
+    mapToCapabilities: (config) => ({
+      recolorables: [
+        { get:()=>config.background_color||defaultConfig.background_color, set:(v)=>{config.background_color=v;window.elementSdk.setConfig({background_color:v})} },
+        { get:()=>config.surface_color||defaultConfig.surface_color, set:(v)=>{config.surface_color=v;window.elementSdk.setConfig({surface_color:v})} },
+        { get:()=>config.text_color||defaultConfig.text_color, set:(v)=>{config.text_color=v;window.elementSdk.setConfig({text_color:v})} },
+        { get:()=>config.primary_action_color||defaultConfig.primary_action_color, set:(v)=>{config.primary_action_color=v;window.elementSdk.setConfig({primary_action_color:v})} },
+        { get:()=>config.secondary_action_color||defaultConfig.secondary_action_color, set:(v)=>{config.secondary_action_color=v;window.elementSdk.setConfig({secondary_action_color:v})} }
+      ],
+      borderables: [],
+      fontEditable: { get:()=>config.font_family||defaultConfig.font_family, set:(v)=>{config.font_family=v;window.elementSdk.setConfig({font_family:v})} },
+      fontSizeable: { get:()=>config.font_size||defaultConfig.font_size, set:(v)=>{config.font_size=v;window.elementSdk.setConfig({font_size:v})} }
+    }),
+    mapToEditPanelValues: (config) => new Map([
+      ['app_title', config.app_title || defaultConfig.app_title]
+    ])
+  });
+}
 
 // ---- INIT ----
 switchPage('dashboard');
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e2f6dc3f4ce62b7',t:'MTc3NDYyNTM0Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9e2f83d543b5e77a',t:'MTc3NDYyNjI1MS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
